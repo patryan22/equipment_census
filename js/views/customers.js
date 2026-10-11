@@ -87,7 +87,7 @@ export async function detail(el, { params }) {
         <span class="badge bobcat">${bobcat} Bobcat</span><span class="badge comp">${fleet.length - bobcat} other</span>
         ${opps ? `<span class="badge opp">★ ${opps} opportunit${opps === 1 ? 'y' : 'ies'}</span>` : ''}</div>
     </div>
-    <div class="stack"><button id="add">📷 Add equipment for this customer</button>
+    <div class="stack"><button id="add">+ Add equipment for this customer</button>
       <button class="secondary" id="edit">Edit customer</button></div>
     <h2>Fleet</h2>
     <div class="list">${fleet.length ? fleet.map((e) => equipRow(e, c.name, threshold)).join('') : '<div class="empty">No equipment logged yet.</div>'}</div>

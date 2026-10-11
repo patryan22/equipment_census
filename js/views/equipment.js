@@ -1,5 +1,5 @@
 import { getAll, get, put, getSetting } from '../db.js';
-import { $, $$, esc, toast, navigate, blobURL, lightbox, fmtDate, STATUSES, CATEGORIES } from '../util.js';
+import { $, $$, esc, toast, navigate, fmtDate, STATUSES } from '../util.js';
 import { isBobcat, ageOf, isOpportunity, ageBucket, AGE_BUCKETS, titleOf, DEFAULT_AGE_THRESHOLD } from '../insights.js';
 
 export function tags(e, threshold) {
@@ -13,9 +13,8 @@ export function tags(e, threshold) {
 }
 
 export function equipRow(e, custName, threshold) {
-  const bg = e.thumb || e.photos?.[0];
   return `<a class="row" href="#/equipment/${e.id}">
-    <div class="thumb" ${bg ? `style="background-image:url(${blobURL(bg)})"` : ''}>${bg ? '' : '🚜'}</div>
+    <div class="thumb">🚜</div>
     <div class="meta"><b>${esc(titleOf(e))}</b>
       <span class="sub">${esc(custName || 'No customer')}${e.county ? ' · ' + esc(e.county) : ''}</span>
       <div class="tags">${tags(e, threshold)}</div></div>
@@ -36,8 +35,8 @@ export async function render(el, { query }) {
 
   if (!equipment.length) {
     el.innerHTML = `<div class="empty"><div style="font-size:48px">🚜</div><b>No equipment yet</b><br>
-      Snap a photo of the first machine you see out in the field.<div class="spacer"></div>
-      <a class="btn" href="#/add">📷 Add equipment</a><div class="spacer"></div>
+      Log the first machine you see out in the field.<div class="spacer"></div>
+      <a class="btn" href="#/add">+ Add equipment</a><div class="spacer"></div>
       <a class="btn secondary" href="#/settings">Import CSV / restore backup</a></div>`;
     return;
   }
@@ -125,7 +124,6 @@ export async function detail(el, { params }) {
   const kv = (k, v) => (v || v === 0 ? `<dt>${k}</dt><dd>${v}</dd>` : '');
 
   el.innerHTML = `
-    ${e.photos?.length ? `<div class="photos big" id="ph">${e.photos.map((b, i) => `<div class="ph" data-i="${i}" style="background-image:url(${blobURL(b)})"></div>`).join('')}</div><div class="spacer"></div>` : ''}
     <div class="card">
       <h2 style="margin:0 0 4px;font-size:22px;text-transform:none;letter-spacing:0;color:var(--text)">${esc(titleOf(e))}</h2>
       <div class="tags" style="margin-bottom:12px">${tags(e, threshold)}</div>
@@ -137,7 +135,6 @@ export async function detail(el, { params }) {
         ${kv('Serial #', esc(e.serial))}
         ${kv('Condition', e.condition && e.condition !== 'Unknown' ? esc(e.condition) : '')}
         ${kv('County', esc(e.county))}
-        ${kv('Location', e.lat != null ? `<a href="https://maps.apple.com/?ll=${e.lat},${e.lng}&q=${encodeURIComponent(titleOf(e))}">Open in Maps</a>` : '')}
         ${kv('Follow up', e.followUp ? fmtDate(e.followUp + 'T12:00:00') : '')}
         ${kv('Notes', esc(e.notes).replace(/\n/g, '<br>'))}
         ${kv('Logged', fmtDate(e.created))}
@@ -152,8 +149,6 @@ export async function detail(el, { params }) {
       ${cust ? `<a class="btn secondary" href="#/customers/${cust.id}">View ${esc(cust.name)}'s fleet</a>` : ''}
     </div>`;
 
-  const ph = $('#ph', el);
-  if (ph) ph.addEventListener('click', (ev) => { const p = ev.target.closest('.ph'); if (p) lightbox(blobURL(e.photos[+p.dataset.i])); });
   $('#st', el).addEventListener('change', async (ev) => {
     e.status = ev.target.value;
     e.updated = Date.now();

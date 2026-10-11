@@ -33,11 +33,6 @@ export const STATUSES = ['', 'Lead', 'Contacted', 'Quoted', 'Won', 'Lost'];
 export const NJ_COUNTIES = ['Atlantic', 'Bergen', 'Burlington', 'Camden', 'Cape May', 'Cumberland', 'Essex', 'Gloucester', 'Hudson',
   'Hunterdon', 'Mercer', 'Middlesex', 'Monmouth', 'Morris', 'Ocean', 'Passaic', 'Salem', 'Somerset', 'Sussex', 'Union', 'Warren'];
 
-// Object URLs for photos are tracked so the router can free them on navigation.
-const urls = [];
-export function blobURL(b) { const u = URL.createObjectURL(b); urls.push(u); return u; }
-export function revokeURLs() { urls.splice(0).forEach((u) => URL.revokeObjectURL(u)); }
-
 let toastTimer;
 export function toast(msg) {
   const t = $('#toast');
@@ -60,25 +55,6 @@ export function sheet(html) {
   const close = () => bg.remove();
   bg.addEventListener('click', (e) => { if (e.target === bg) close(); });
   return { el: bg.firstElementChild, close };
-}
-
-export function lightbox(src) {
-  const o = document.createElement('div');
-  o.className = 'overlay';
-  o.innerHTML = `<img src="${src}" alt=""><button class="x" aria-label="Close">&times;</button>`;
-  o.addEventListener('click', () => o.remove());
-  document.body.appendChild(o);
-}
-
-export function getPosition() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) return reject(new Error('Location not supported'));
-    navigator.geolocation.getCurrentPosition(
-      (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude, acc: Math.round(p.coords.accuracy) }),
-      (e) => reject(new Error(e.code === 1 ? 'Location permission denied' : 'Could not get location')),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
-    );
-  });
 }
 
 // iOS: the share sheet lets the user save to Files; falls back to a normal download.

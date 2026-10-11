@@ -29,13 +29,13 @@ const cell = (v) => {
 };
 export const toCSV = (header, rows) => '﻿' + [header, ...rows].map((r) => r.map(cell).join(',')).join('\r\n');
 
-export const EQUIP_COLS = ['customer', 'category', 'brand', 'model', 'year', 'serial', 'hours', 'condition', 'status', 'follow_up', 'county', 'lat', 'lng', 'notes'];
+export const EQUIP_COLS = ['customer', 'category', 'brand', 'model', 'year', 'serial', 'hours', 'condition', 'status', 'follow_up', 'county', 'notes'];
 export const CUST_COLS = ['name', 'contact', 'phone', 'address', 'county', 'notes'];
 
 export function equipmentCSV(equipment, customers) {
   const names = new Map(customers.map((c) => [c.id, c.name]));
   return toCSV(EQUIP_COLS, equipment.map((e) => [names.get(e.customerId) || '', e.category, e.brand, e.model, e.year, e.serial, e.hours,
-    e.condition, e.status, e.followUp, e.county, e.lat, e.lng, e.notes]));
+    e.condition, e.status, e.followUp, e.county, e.notes]));
 }
 export const customersCSV = (customers) => toCSV(CUST_COLS, customers.map((c) => CUST_COLS.map((k) => c[k])));
 
@@ -65,13 +65,11 @@ export function importCSV(text, existingCustomers) {
     if (isEquip) {
       if (!val(r, 'brand') && !val(r, 'model')) { skipped++; continue; }
       const c = getCustomer(val(r, 'customer'), val(r, 'county'));
-      const lat = parseFloat(val(r, 'lat')), lng = parseFloat(val(r, 'lng'));
       equipment.push({
         id: uid(), customerId: c ? c.id : null, category: val(r, 'category'), brand: normBrand(val(r, 'brand')), model: val(r, 'model'),
         year: parseInt(val(r, 'year'), 10) || null, serial: val(r, 'serial'), hours: parseInt(val(r, 'hours'), 10) || null,
         condition: val(r, 'condition') || 'Unknown', status: val(r, 'status'), followUp: val(r, 'follow_up'), county: val(r, 'county'),
-        lat: Number.isFinite(lat) ? lat : null, lng: Number.isFinite(lng) ? lng : null, notes: val(r, 'notes'),
-        photos: [], thumb: null, created: Date.now(), updated: Date.now(),
+        notes: val(r, 'notes'), created: Date.now(), updated: Date.now(),
       });
     } else {
       const name = val(r, 'name');

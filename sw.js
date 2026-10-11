@@ -1,12 +1,11 @@
-// Network-first for the app shell (always fresh when online, works offline),
-// stale-while-revalidate for the Leaflet CDN files. Everything else passes through.
-const CACHE = 'census-v1';
+// Network-first for the app shell: always fresh when online, still works offline.
+const CACHE = 'census-v2';
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
-  './js/app.js', './js/db.js', './js/util.js', './js/image.js', './js/ai.js',
+  './js/app.js', './js/db.js', './js/util.js',
   './js/insights.js', './js/csv.js', './js/backup.js',
   './js/views/form.js', './js/views/equipment.js', './js/views/customers.js',
-  './js/views/map.js', './js/views/dashboard.js', './js/views/settings.js',
+  './js/views/dashboard.js', './js/views/settings.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
 ];
 
@@ -35,15 +34,6 @@ self.addEventListener('fetch', (e) => {
           return res;
         })
         .catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
-    );
-  } else if (url.hostname === 'unpkg.com') {
-    e.respondWith(
-      caches.open(CACHE).then((c) =>
-        c.match(req).then((hit) => {
-          const net = fetch(req).then((res) => { if (res.ok) c.put(req, res.clone()); return res; }).catch(() => hit);
-          return hit || net;
-        })
-      )
     );
   }
 });
